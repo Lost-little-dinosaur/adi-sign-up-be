@@ -9,13 +9,13 @@ type AddSignUpRequest struct {
 }
 
 type Member struct {
-	Phone          string `json:"phone"`
-	QQ             string `json:"qq"`
-	Name           string `json:"name"`
-	IDNumber       string `json:"idNumber"`
-	BankCardNumber string `json:"bankCardNumber"`
-	BankName       string `json:"bankName"`
-	HDUID          string `json:"hduId"`
+	Phone    string `json:"phone"`
+	QQ       string `json:"qq"`
+	Name     string `json:"name"`
+	IDNumber string `json:"idNumber"`
+	//BankCardNumber string `json:"bankCardNumber"`
+	//BankName       string `json:"bankName"`
+	HDUID string `json:"hduId"`
 }
 
 type SignUpForm struct {

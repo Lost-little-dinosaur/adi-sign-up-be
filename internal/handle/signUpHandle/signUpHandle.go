@@ -36,6 +36,10 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.FailWithCode(c, 40204, "队伍名称不能为空")
 		return
 	}
+	if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber || req.MemberArr[0].IDNumber == req.MemberArr[2].IDNumber {
+		middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
+		return
+	}
 	for i, v := range req.MemberArr {
 		if len(v.Phone) > 30 {
 			middleware.FailWithCode(c, 40205, fmt.Sprint(i+1, "号队员电话过长"))
@@ -76,23 +80,23 @@ func HandleAddSignUp(c *gin.Context) {
 				middleware.FailWithCode(c, 40212, fmt.Sprint(i+1, "号队员学号格式不正确"))
 				return
 			}
-		} else { //默认非杭电队伍
-			if len(v.BankCardNumber) > 30 {
-				middleware.FailWithCode(c, 40213, fmt.Sprint(i+1, "号队员银行卡号过长"))
-				return
-			}
-			if len(v.BankCardNumber) == 0 {
-				middleware.FailWithCode(c, 40214, fmt.Sprint(i+1, "号队员银行卡号为空"))
-				return
-			}
-			if len(v.BankName) > 50 {
-				middleware.FailWithCode(c, 40215, fmt.Sprint(i+1, "号队员开户行名字过长"))
-				return
-			}
-			if len(v.BankName) == 0 {
-				middleware.FailWithCode(c, 40216, fmt.Sprint(i+1, "号队员开户行名字为空"))
-				return
-			}
+			//} else { //默认非杭电队伍
+			//	if len(v.BankCardNumber) > 30 {
+			//		middleware.FailWithCode(c, 40213, fmt.Sprint(i+1, "号队员银行卡号过长"))
+			//		return
+			//	}
+			//	if len(v.BankCardNumber) == 0 {
+			//		middleware.FailWithCode(c, 40214, fmt.Sprint(i+1, "号队员银行卡号为空"))
+			//		return
+			//	}
+			//	if len(v.BankName) > 50 {
+			//		middleware.FailWithCode(c, 40215, fmt.Sprint(i+1, "号队员开户行名字过长"))
+			//		return
+			//	}
+			//	if len(v.BankName) == 0 {
+			//		middleware.FailWithCode(c, 40216, fmt.Sprint(i+1, "号队员开户行名字为空"))
+			//		return
+			//	}
 
 		}
 	}
@@ -117,8 +121,8 @@ func HandleAddSignUp(c *gin.Context) {
 				QQ:             v.QQ,
 				Name:           v.Name,
 				IDNumber:       v.IDNumber,
-				BankCardNumber: v.BankCardNumber,
-				BankName:       v.BankName,
+				BankCardNumber: "", //暂时不搜集银行卡信息
+				BankName:       "",
 				Role:           "队员",
 			})
 		}
@@ -163,29 +167,23 @@ func HandleGetAllSignUp(c *gin.Context) {
 			IsHDU:    v.IsHDU,
 			MemberArr: []signUp.Member{
 				{
-					Phone:          tempMember1.Phone,
-					QQ:             tempMember1.QQ,
-					Name:           tempMember1.Name,
-					IDNumber:       tempMember1.IDNumber,
-					BankCardNumber: tempMember1.BankCardNumber,
-					BankName:       tempMember1.BankName,
-					HDUID:          tempMember1.HDUID,
+					Phone:    tempMember1.Phone,
+					QQ:       tempMember1.QQ,
+					Name:     tempMember1.Name,
+					IDNumber: tempMember1.IDNumber,
+					HDUID:    tempMember1.HDUID,
 				}, {
-					Phone:          tempMember2.Phone,
-					QQ:             tempMember2.QQ,
-					Name:           tempMember2.Name,
-					IDNumber:       tempMember2.IDNumber,
-					BankCardNumber: tempMember2.BankCardNumber,
-					BankName:       tempMember2.BankName,
-					HDUID:          tempMember2.HDUID,
+					Phone:    tempMember2.Phone,
+					QQ:       tempMember2.QQ,
+					Name:     tempMember2.Name,
+					IDNumber: tempMember2.IDNumber,
+					HDUID:    tempMember2.HDUID,
 				}, {
-					Phone:          tempMember3.Phone,
-					QQ:             tempMember3.QQ,
-					Name:           tempMember3.Name,
-					IDNumber:       tempMember3.IDNumber,
-					BankCardNumber: tempMember3.BankCardNumber,
-					BankName:       tempMember3.BankName,
-					HDUID:          tempMember3.HDUID,
+					Phone:    tempMember3.Phone,
+					QQ:       tempMember3.QQ,
+					Name:     tempMember3.Name,
+					IDNumber: tempMember3.IDNumber,
+					HDUID:    tempMember3.HDUID,
 				},
 			},
 		})
