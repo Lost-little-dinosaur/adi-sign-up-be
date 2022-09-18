@@ -6,7 +6,7 @@ import (
 	"adi-sign-up-be/internal/dto/signUp"
 	"adi-sign-up-be/internal/middleware"
 	"adi-sign-up-be/internal/model/Mysql"
-	"adi-sign-up-be/pkg/utils/captcha"
+	"adi-sign-up-be/pkg/utils/check"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -18,10 +18,10 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.Fail(c, serviceErr.RequestErr)
 		return
 	}
-	if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
-		middleware.FailWithCode(c, 40201, "验证码错误")
-		return
-	}
+	//if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
+	//	middleware.FailWithCode(c, 40201, "验证码错误")
+	//	return
+	//}
 	// TODO 访问限制
 	//检查参数
 	if len(req.MemberArr) != 3 {
@@ -41,12 +41,12 @@ func HandleAddSignUp(c *gin.Context) {
 		return
 	}
 	for i, v := range req.MemberArr {
-		if len(v.Phone) > 30 {
-			middleware.FailWithCode(c, 40205, fmt.Sprint(i+1, "号队员电话过长"))
-			return
-		}
 		if len(v.Phone) == 0 {
 			middleware.FailWithCode(c, 40206, fmt.Sprint(i+1, "号队员电话为空"))
+			return
+		}
+		if !check.CheckMobile(v.Phone) {
+			middleware.FailWithCode(c, 40205, fmt.Sprint(i+1, "号队员电话格式错误"))
 			return
 		}
 		if len(v.QQ) > 30 {
@@ -65,7 +65,7 @@ func HandleAddSignUp(c *gin.Context) {
 			middleware.FailWithCode(c, 40210, fmt.Sprint(i+1, "号队员名字为空"))
 			return
 		}
-		if len(v.IDNumber) != 18 {
+		if check.CheckIdCard(v.IDNumber) == false {
 			middleware.FailWithCode(c, 40211, fmt.Sprint(i+1, "号队员身份证号格式不正确"))
 			return
 		}
