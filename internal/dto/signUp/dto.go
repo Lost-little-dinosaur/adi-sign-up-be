@@ -3,6 +3,7 @@ package signUp
 type AddSignUpRequest struct {
 	TeamName     string   `json:"teamName"`
 	IsHDU        bool     `json:"isHDU"`
+	School       string   `json:"school"`
 	MemberArr    []Member `json:"memberArr"`
 	CaptchaId    string   `json:"captchaId"`
 	CaptchaValue string   `json:"captchaValue"`
@@ -21,6 +22,7 @@ type Member struct {
 type SignUpForm struct {
 	TeamName  string `json:"teamName"`
 	IsHDU     bool   `json:"isHDU"`
+	School    string `json:"school"`
 	MemberArr []Member
 }
 type GetSignUpResponse struct {

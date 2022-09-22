@@ -6,6 +6,7 @@ import (
 	"adi-sign-up-be/internal/dto/signUp"
 	"adi-sign-up-be/internal/middleware"
 	"adi-sign-up-be/internal/model/Mysql"
+	"adi-sign-up-be/pkg/utils/captcha"
 	"adi-sign-up-be/pkg/utils/check"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -18,10 +19,10 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.Fail(c, serviceErr.RequestErr)
 		return
 	}
-	//if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
-	//	middleware.FailWithCode(c, 40201, "验证码错误")
-	//	return
-	//}
+	if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
+		middleware.FailWithCode(c, 40201, "验证码错误")
+		return
+	}
 	// TODO 访问限制
 	//检查参数
 	if len(req.MemberArr) != 3 {
@@ -30,6 +31,14 @@ func HandleAddSignUp(c *gin.Context) {
 	}
 	if len(req.TeamName) > 90 {
 		middleware.FailWithCode(c, 40203, "队伍名称过长")
+		return
+	}
+	if len(req.School) == 0 && !req.IsHDU {
+		middleware.FailWithCode(c, 40218, "请填写参赛学校")
+		return
+	}
+	if len(req.School) > 90 {
+		middleware.FailWithCode(c, 40203, "参赛学校过长")
 		return
 	}
 	if len(req.TeamName) == 0 {
@@ -103,6 +112,7 @@ func HandleAddSignUp(c *gin.Context) {
 	memberIDArr := make([]string, 3)
 	for i, v := range req.MemberArr {
 		if req.IsHDU {
+			req.School = "杭州电子科技大学"
 			err, memberIDArr[i] = SignUps.AddMember(&Mysql.Member{
 				Phone:    v.Phone,
 				QQ:       v.QQ,
@@ -130,6 +140,7 @@ func HandleAddSignUp(c *gin.Context) {
 	if err = SignUps.AddSignUp(&Mysql.SignUp{
 		TeamName:  req.TeamName,
 		IsHDU:     req.IsHDU,
+		School:    req.School,
 		Member1ID: memberIDArr[0],
 		Member2ID: memberIDArr[1],
 		Member3ID: memberIDArr[2],
@@ -165,6 +176,7 @@ func HandleGetAllSignUp(c *gin.Context) {
 		res.SignUpFormArr = append(res.SignUpFormArr, signUp.SignUpForm{
 			TeamName: v.TeamName,
 			IsHDU:    v.IsHDU,
+			School:   v.School,
 			MemberArr: []signUp.Member{
 				{
 					Phone:    tempMember1.Phone,
