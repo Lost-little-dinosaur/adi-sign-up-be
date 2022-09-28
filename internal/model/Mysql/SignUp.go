@@ -10,6 +10,7 @@ type SignUp struct {
 	TeamName  string `gorm:"type:varchar(90);not null;" json:"teamName"`
 	IsHDU     bool   `gorm:"type:bool;not null;" json:"isHDU"`
 	School    string `gorm:"type:varchar(90);not null;" json:"school"`
+	Teacher   string `gorm:"type:varchar(90);not null;" json:"teacher"`
 	Member1ID string `gorm:"type:varchar(90);not null;" json:"member1ID"`
 	Member2ID string `gorm:"type:varchar(90);not null;" json:"member2ID"`
 	Member3ID string `gorm:"type:varchar(90);not null;" json:"member3ID"`

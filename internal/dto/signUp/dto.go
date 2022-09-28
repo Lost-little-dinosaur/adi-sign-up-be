@@ -4,6 +4,7 @@ type AddSignUpRequest struct {
 	TeamName     string   `json:"teamName"`
 	IsHDU        bool     `json:"isHDU"`
 	School       string   `json:"school"`
+	Teacher      string   `json:"teacher"`
 	MemberArr    []Member `json:"memberArr"`
 	CaptchaId    string   `json:"captchaId"`
 	CaptchaValue string   `json:"captchaValue"`
@@ -21,6 +22,7 @@ type Member struct {
 
 type SignUpForm struct {
 	TeamName  string `json:"teamName"`
+	Teacher   string `json:"teacher"`
 	IsHDU     bool   `json:"isHDU"`
 	School    string `json:"school"`
 	MemberArr []Member

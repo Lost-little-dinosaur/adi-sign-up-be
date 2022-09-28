@@ -6,7 +6,6 @@ import (
 	"adi-sign-up-be/internal/dto/signUp"
 	"adi-sign-up-be/internal/middleware"
 	"adi-sign-up-be/internal/model/Mysql"
-	"adi-sign-up-be/pkg/utils/captcha"
 	"adi-sign-up-be/pkg/utils/check"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -19,14 +18,14 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.Fail(c, serviceErr.RequestErr)
 		return
 	}
-	if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
-		middleware.FailWithCode(c, 40201, "验证码错误")
-		return
-	}
+	//if len(req.CaptchaId) == 0 || len(req.CaptchaValue) == 0 || !captcha.VerifyCaptcha(req.CaptchaId, req.CaptchaValue) {
+	//	middleware.FailWithCode(c, 40201, "验证码错误")
+	//	return
+	//}
 	// TODO 访问限制
 	//检查参数
-	if len(req.MemberArr) != 3 {
-		middleware.FailWithCode(c, 40202, "队伍人数必须是3人")
+	if len(req.MemberArr) != 3 && len(req.MemberArr) != 2 {
+		middleware.FailWithCode(c, 40202, "队伍人数必须是3人或2人")
 		return
 	}
 	if len(req.TeamName) > 90 {
@@ -45,9 +44,17 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.FailWithCode(c, 40204, "队伍名称不能为空")
 		return
 	}
-	if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber || req.MemberArr[0].IDNumber == req.MemberArr[2].IDNumber {
-		middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
-		return
+	if len(req.MemberArr) == 3 {
+		if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber || req.MemberArr[0].IDNumber == req.MemberArr[2].IDNumber {
+
+			middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
+			return
+		}
+	} else if len(req.MemberArr) == 2 {
+		if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber {
+			middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
+			return
+		}
 	}
 	for i, v := range req.MemberArr {
 		if len(v.Phone) == 0 {
@@ -139,6 +146,7 @@ func HandleAddSignUp(c *gin.Context) {
 	}
 	if err = SignUps.AddSignUp(&Mysql.SignUp{
 		TeamName:  req.TeamName,
+		Teacher:   req.Teacher,
 		IsHDU:     req.IsHDU,
 		School:    req.School,
 		Member1ID: memberIDArr[0],
@@ -146,6 +154,7 @@ func HandleAddSignUp(c *gin.Context) {
 		Member3ID: memberIDArr[2],
 	}); err != nil {
 		middleware.Fail(c, serviceErr.InternalErr)
+		return
 	}
 	middleware.Success(c, nil)
 	return
@@ -176,6 +185,7 @@ func HandleGetAllSignUp(c *gin.Context) {
 		res.SignUpFormArr = append(res.SignUpFormArr, signUp.SignUpForm{
 			TeamName: v.TeamName,
 			IsHDU:    v.IsHDU,
+			Teacher:  v.Teacher,
 			School:   v.School,
 			MemberArr: []signUp.Member{
 				{
