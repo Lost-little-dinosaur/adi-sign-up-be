@@ -56,7 +56,11 @@ func HandleAddSignUp(c *gin.Context) {
 			return
 		}
 	}
-	for i, v := range req.MemberArr {
+	tempFlag := 0
+	if req.MemberArr[2].IDNumber == "" && req.MemberArr[2].QQ == "" && req.MemberArr[2].Phone == "" && req.MemberArr[2].Name == "" && req.MemberArr[2].HDUID == "" {
+		tempFlag = 1
+	}
+	for i, v := range req.MemberArr[:len(req.MemberArr)-tempFlag] {
 		if len(v.Phone) == 0 {
 			middleware.FailWithCode(c, 40206, fmt.Sprint(i+1, "号队员电话为空"))
 			return
