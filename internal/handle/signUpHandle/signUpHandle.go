@@ -10,7 +10,7 @@ import (
 	"adi-sign-up-be/pkg/utils/check"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"time"
+	"strconv"
 )
 
 //TODO:
@@ -155,8 +155,8 @@ func HandleAddSignUp(c *gin.Context) {
 			})
 		}
 	}
-	tempTime := time.Time{}
-	if err, tempTime = SignUps.AddSignUp(&Mysql.SignUp{
+	var tempLen int64
+	if err, tempLen = SignUps.AddSignUp(&Mysql.SignUp{
 		TeamName:  req.TeamName,
 		Teacher:   req.Teacher,
 		IsHDU:     req.IsHDU,
@@ -168,8 +168,13 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.Fail(c, serviceErr.InternalErr)
 		return
 	}
-	middleware.Success(c, tempTime.Format("2006010203040506"))
-	return
+	if tempLen < 100 {
+		middleware.Success(c, "20220"+strconv.FormatInt(tempLen, 10))
+		return
+	} else {
+		middleware.Success(c, "2022"+strconv.FormatInt(tempLen, 10))
+		return
+	}
 }
 
 func HandleGetAllSignUp(c *gin.Context) {
