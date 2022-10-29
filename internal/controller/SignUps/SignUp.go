@@ -6,6 +6,7 @@ import (
 	"adi-sign-up-be/internal/model/Mysql"
 	"gorm.io/gorm"
 	"sync"
+	"time"
 )
 
 var dbManage *SignUpDBManage = nil
@@ -45,8 +46,8 @@ func GetManage() *SignUpDBManage {
 
 //以上代码是初始化数据库表以及自动创建表所需的代码，下面是具体操作数据库的代码
 
-func AddSignUp(signUp *Mysql.SignUp) error {
-	return GetManage().getGOrmDB().Model(&Mysql.SignUp{}).Create(signUp).Error
+func AddSignUp(signUp *Mysql.SignUp) (error, time.Time) {
+	return GetManage().getGOrmDB().Model(&Mysql.SignUp{}).Create(signUp).Error, signUp.CreatedAt
 }
 
 func AddMember(member *Mysql.Member) (error, string) {

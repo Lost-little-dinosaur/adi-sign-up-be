@@ -6,10 +6,14 @@ import (
 	"adi-sign-up-be/internal/dto/signUp"
 	"adi-sign-up-be/internal/middleware"
 	"adi-sign-up-be/internal/model/Mysql"
-	"adi-sign-up-be/pkg/utils/check"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"time"
 )
+
+//TODO:
+//1. 覆盖报名
+//2. 数据库ID设计
+//3. 信息为空不存储
 
 func HandleAddSignUp(c *gin.Context) {
 	var req signUp.AddSignUpRequest
@@ -24,102 +28,102 @@ func HandleAddSignUp(c *gin.Context) {
 	//}
 	// TODO 访问限制
 	//检查参数
-	if len(req.MemberArr) != 3 && len(req.MemberArr) != 2 {
-		middleware.FailWithCode(c, 40202, "队伍人数必须是3人或2人")
-		return
-	}
-	if len(req.TeamName) > 90 {
-		middleware.FailWithCode(c, 40203, "队伍名称过长")
-		return
-	}
-	if len(req.School) == 0 && !req.IsHDU {
-		middleware.FailWithCode(c, 40218, "请填写参赛学校")
-		return
-	}
-	if len(req.School) > 90 {
-		middleware.FailWithCode(c, 40203, "参赛学校过长")
-		return
-	}
-	if len(req.TeamName) == 0 {
-		middleware.FailWithCode(c, 40204, "队伍名称不能为空")
-		return
-	}
-	if len(req.MemberArr) == 3 {
-		if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber || req.MemberArr[0].IDNumber == req.MemberArr[2].IDNumber {
-
-			middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
-			return
-		}
-	} else if len(req.MemberArr) == 2 {
-		if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber {
-			middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
-			return
-		}
-	}
-	tempFlag := 0
-	if req.MemberArr[2].IDNumber == "" && req.MemberArr[2].QQ == "" && req.MemberArr[2].Phone == "" && req.MemberArr[2].Name == "" && req.MemberArr[2].HDUID == "" {
-		tempFlag = 1
-	}
-	for i, v := range req.MemberArr[:len(req.MemberArr)-tempFlag] {
-		if len(v.Phone) == 0 {
-			middleware.FailWithCode(c, 40206, fmt.Sprint(i+1, "号队员电话为空"))
-			return
-		}
-		if !check.CheckMobile(v.Phone) {
-			middleware.FailWithCode(c, 40205, fmt.Sprint(i+1, "号队员电话格式错误"))
-			return
-		}
-		if len(v.QQ) > 30 {
-			middleware.FailWithCode(c, 40207, fmt.Sprint(i+1, "号队员QQ号过长"))
-			return
-		}
-		if len(v.QQ) == 0 {
-			middleware.FailWithCode(c, 40208, fmt.Sprint(i+1, "号队员QQ号为空"))
-			return
-		}
-		if len(v.Name) > 30 {
-			middleware.FailWithCode(c, 40209, fmt.Sprint(i+1, "号队员名字过长"))
-			return
-		}
-		if len(v.Name) == 0 {
-			middleware.FailWithCode(c, 40210, fmt.Sprint(i+1, "号队员名字为空"))
-			return
-		}
-		if check.CheckIdCard(v.IDNumber) == false {
-			middleware.FailWithCode(c, 40211, fmt.Sprint(i+1, "号队员身份证号格式不正确"))
-			return
-		}
-		var tempFlag bool
-		err, tempFlag = SignUps.CheckIdNumberExist(v.IDNumber)
-		if tempFlag {
-			middleware.FailWithCode(c, 40217, fmt.Sprint(i+1, "号队员身份证号已报名"))
-			return
-		}
-		if req.IsHDU {
-			if len(v.HDUID) != 8 {
-				middleware.FailWithCode(c, 40212, fmt.Sprint(i+1, "号队员学号格式不正确"))
-				return
-			}
-			//} else { //默认非杭电队伍
-			//	if len(v.BankCardNumber) > 30 {
-			//		middleware.FailWithCode(c, 40213, fmt.Sprint(i+1, "号队员银行卡号过长"))
-			//		return
-			//	}
-			//	if len(v.BankCardNumber) == 0 {
-			//		middleware.FailWithCode(c, 40214, fmt.Sprint(i+1, "号队员银行卡号为空"))
-			//		return
-			//	}
-			//	if len(v.BankName) > 50 {
-			//		middleware.FailWithCode(c, 40215, fmt.Sprint(i+1, "号队员开户行名字过长"))
-			//		return
-			//	}
-			//	if len(v.BankName) == 0 {
-			//		middleware.FailWithCode(c, 40216, fmt.Sprint(i+1, "号队员开户行名字为空"))
-			//		return
-			//	}
-
-		}
-	}
+	//if len(req.MemberArr) != 3 && len(req.MemberArr) != 2 {
+	//	middleware.FailWithCode(c, 40202, "队伍人数必须是3人或2人")
+	//	return
+	//}
+	//if len(req.TeamName) > 90 {
+	//	middleware.FailWithCode(c, 40203, "队伍名称过长")
+	//	return
+	//}
+	//if len(req.School) == 0 && !req.IsHDU {
+	//	middleware.FailWithCode(c, 40218, "请填写参赛学校")
+	//	return
+	//}
+	//if len(req.School) > 90 {
+	//	middleware.FailWithCode(c, 40203, "参赛学校过长")
+	//	return
+	//}
+	//if len(req.TeamName) == 0 {
+	//	middleware.FailWithCode(c, 40204, "队伍名称不能为空")
+	//	return
+	//}
+	//if len(req.MemberArr) == 3 {
+	//	if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber || req.MemberArr[0].IDNumber == req.MemberArr[2].IDNumber {
+	//
+	//		middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
+	//		return
+	//	}
+	//} else if len(req.MemberArr) == 2 {
+	//	if req.MemberArr[0].IDNumber == req.MemberArr[1].IDNumber {
+	//		middleware.FailWithCode(c, 40216, fmt.Sprint("队员身份信息不能相同"))
+	//		return
+	//	}
+	//}
+	//tempFlag := 0
+	//if req.MemberArr[2].IDNumber == "" && req.MemberArr[2].QQ == "" && req.MemberArr[2].Phone == "" && req.MemberArr[2].Name == "" && req.MemberArr[2].HDUID == "" {
+	//	tempFlag = 1
+	//}
+	//for i, v := range req.MemberArr[:len(req.MemberArr)-tempFlag] {
+	//	if len(v.Phone) == 0 {
+	//		middleware.FailWithCode(c, 40206, fmt.Sprint(i+1, "号队员电话为空"))
+	//		return
+	//	}
+	//	if !check.CheckMobile(v.Phone) {
+	//		middleware.FailWithCode(c, 40205, fmt.Sprint(i+1, "号队员电话格式错误"))
+	//		return
+	//	}
+	//	if len(v.QQ) > 30 {
+	//		middleware.FailWithCode(c, 40207, fmt.Sprint(i+1, "号队员QQ号过长"))
+	//		return
+	//	}
+	//	if len(v.QQ) == 0 {
+	//		middleware.FailWithCode(c, 40208, fmt.Sprint(i+1, "号队员QQ号为空"))
+	//		return
+	//	}
+	//	if len(v.Name) > 30 {
+	//		middleware.FailWithCode(c, 40209, fmt.Sprint(i+1, "号队员名字过长"))
+	//		return
+	//	}
+	//	if len(v.Name) == 0 {
+	//		middleware.FailWithCode(c, 40210, fmt.Sprint(i+1, "号队员名字为空"))
+	//		return
+	//	}
+	//	if check.CheckIdCard(v.IDNumber) == false {
+	//		middleware.FailWithCode(c, 40211, fmt.Sprint(i+1, "号队员身份证号格式不正确"))
+	//		return
+	//	}
+	//	var tempFlag bool
+	//	err, tempFlag = SignUps.CheckIdNumberExist(v.IDNumber)
+	//	if tempFlag {
+	//		middleware.FailWithCode(c, 40217, fmt.Sprint(i+1, "号队员身份证号已报名"))
+	//		return
+	//	}
+	//	if req.IsHDU {
+	//		if len(v.HDUID) != 8 {
+	//			middleware.FailWithCode(c, 40212, fmt.Sprint(i+1, "号队员学号格式不正确"))
+	//			return
+	//		}
+	//		//} else { //默认非杭电队伍
+	//		//	if len(v.BankCardNumber) > 30 {
+	//		//		middleware.FailWithCode(c, 40213, fmt.Sprint(i+1, "号队员银行卡号过长"))
+	//		//		return
+	//		//	}
+	//		//	if len(v.BankCardNumber) == 0 {
+	//		//		middleware.FailWithCode(c, 40214, fmt.Sprint(i+1, "号队员银行卡号为空"))
+	//		//		return
+	//		//	}
+	//		//	if len(v.BankName) > 50 {
+	//		//		middleware.FailWithCode(c, 40215, fmt.Sprint(i+1, "号队员开户行名字过长"))
+	//		//		return
+	//		//	}
+	//		//	if len(v.BankName) == 0 {
+	//		//		middleware.FailWithCode(c, 40216, fmt.Sprint(i+1, "号队员开户行名字为空"))
+	//		//		return
+	//		//	}
+	//
+	//	}
+	//}
 	memberIDArr := make([]string, 3)
 	for i, v := range req.MemberArr {
 		if req.IsHDU {
@@ -148,7 +152,8 @@ func HandleAddSignUp(c *gin.Context) {
 			})
 		}
 	}
-	if err = SignUps.AddSignUp(&Mysql.SignUp{
+	tempTime := time.Time{}
+	if err, tempTime = SignUps.AddSignUp(&Mysql.SignUp{
 		TeamName:  req.TeamName,
 		Teacher:   req.Teacher,
 		IsHDU:     req.IsHDU,
@@ -160,7 +165,7 @@ func HandleAddSignUp(c *gin.Context) {
 		middleware.Fail(c, serviceErr.InternalErr)
 		return
 	}
-	middleware.Success(c, nil)
+	middleware.Success(c, tempTime.Format("2006010203040506"))
 	return
 }
 
